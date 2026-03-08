@@ -1,4 +1,4 @@
-package model;
+package NotasUsuario.model;
 
 public class Usuario {
 

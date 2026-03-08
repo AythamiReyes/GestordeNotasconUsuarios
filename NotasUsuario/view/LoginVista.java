@@ -1,8 +1,7 @@
-package view;
+package NotasUsuario.view;
 
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
+import javax.swing.*;
 
 // LoginVista es la ventana de inicio de sesión y registro
 // Se muestra antes que la ventana principal

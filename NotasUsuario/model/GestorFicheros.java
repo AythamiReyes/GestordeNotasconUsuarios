@@ -1,113 +1,84 @@
-package model;
+package NotasUsuario.model;
 
 import java.io.*;
 import java.util.ArrayList;
 
+// Guarda y carga datos en ficheros
 public class GestorFicheros {
 
-    public static void guardarUsuarios(ArrayList<Usuario> usuarios) {
+    private static final String FICHERO_USUARIOS = "usuarios.txt";
+    private static final String FICHERO_NOTAS    = "notas.txt";
+    private static final String SEP              = "||";
+
+
+    public static void guardarUsuarios(ArrayList<Usuario> lista) {
         try {
-            FileWriter escritor = new FileWriter(FICHERO_USUARIOS);
-            BufferedWriter bw   = new BufferedWriter(escritor);
-
-            for (int i = 0; i < usuarios.size(); i++) {
-                Usuario u = usuarios.get(i);
-                bw.write(u.getNombre() + SEPARADOR + u.getHashContrasena());
-                bw.newLine(); // salto de línea entre usuarios
+            BufferedWriter bw = new BufferedWriter(new FileWriter(FICHERO_USUARIOS));
+            for (int i = 0; i < lista.size(); i++) {
+                Usuario u = lista.get(i);
+                bw.write(u.getNombre() + SEP + u.getHashContrasena());
+                bw.newLine();
             }
-
             bw.close();
-
         } catch (IOException e) {
-            System.out.println("No se pudo guardar usuarios: " + e.getMessage());
+            System.out.println("Error al guardar usuarios: " + e.getMessage());
         }
     }
 
     public static ArrayList<Usuario> cargarUsuarios() {
         ArrayList<Usuario> lista = new ArrayList<>();
-
-        File fichero = new File(FICHERO_USUARIOS);
-        if (!fichero.exists()) {
-            return lista; // el fichero aún no existe, devolvemos lista vacía
-        }
+        File f = new File(FICHERO_USUARIOS);
+        if (!f.exists()) return lista;
 
         try {
-            FileReader lector = new FileReader(FICHERO_USUARIOS);
-            BufferedReader br = new BufferedReader(lector);
-
+            BufferedReader br = new BufferedReader(new FileReader(FICHERO_USUARIOS));
             String linea;
-            // readLine() devuelve null cuando llega al final del fichero
             while ((linea = br.readLine()) != null) {
-                if (!linea.isEmpty()) {
-                    // Separamos la línea en partes usando el separador
-                    String[] partes = linea.split("\\|\\|"); // \|\| es || en regex
-                    if (partes.length == 2) {
-                        lista.add(new Usuario(partes[0], partes[1]));
-                    }
-                }
+                String[] partes = linea.split("\\|\\|");
+                if (partes.length == 2) lista.add(new Usuario(partes[0], partes[1]));
             }
-
             br.close();
-
         } catch (IOException e) {
-            System.out.println("No se pudo cargar usuarios: " + e.getMessage());
+            System.out.println("Error al cargar usuarios: " + e.getMessage());
         }
-
         return lista;
     }
 
-    public static void guardarNotas(ArrayList<Nota> notas) {
+
+    public static void guardarNotas(ArrayList<Nota> lista) {
         try {
-            FileWriter escritor = new FileWriter(FICHERO_NOTAS);
-            BufferedWriter bw   = new BufferedWriter(escritor);
-
-            for (int i = 0; i < notas.size(); i++) {
-                Nota n = notas.get(i);
-
-                // Reemplazamos saltos de línea por <BR> para que quepa en una línea
-                String contenidoSeguro = n.getContenido().replace("\n", "<BR>");
-
-                bw.write(n.getPropietario() + SEPARADOR + n.getTitulo() + SEPARADOR + contenidoSeguro);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(FICHERO_NOTAS));
+            for (int i = 0; i < lista.size(); i++) {
+                Nota n = lista.get(i);
+                String contenido = n.getContenido().replace("\n", "<BR>");
+                bw.write(n.getPropietario() + SEP + n.getTitulo() + SEP + contenido);
                 bw.newLine();
             }
-
             bw.close();
-
         } catch (IOException e) {
-            System.out.println("No se pudo guardar notas: " + e.getMessage());
+            System.out.println("Error al guardar notas: " + e.getMessage());
         }
     }
 
     public static ArrayList<Nota> cargarNotas() {
         ArrayList<Nota> lista = new ArrayList<>();
-
-        File fichero = new File(FICHERO_NOTAS);
-        if (!fichero.exists()) {
-            return lista;
-        }
+        File f = new File(FICHERO_NOTAS);
+        if (!f.exists()) return lista;
 
         try {
-            FileReader lector = new FileReader(FICHERO_NOTAS);
-            BufferedReader br = new BufferedReader(lector);
-
+            BufferedReader br = new BufferedReader(new FileReader(FICHERO_NOTAS));
             String linea;
             while ((linea = br.readLine()) != null) {
-                if (!linea.isEmpty()) {
-                    String[] partes = linea.split("\\|\\|", 3); // máximo 3 partes
-                    if (partes.length == 3) {
-                        // Recuperamos los saltos de línea originales
-                        String contenido = partes[2].replace("<BR>", "\n");
-                        lista.add(new Nota(partes[1], contenido, partes[0]));
-                    }
+                String[] partes = linea.split("\\|\\|", 3);
+                if (partes.length == 3) {
+                    String contenido = partes[2].replace("<BR>", "\n");
+                    lista.add(new Nota(partes[1], contenido, partes[0]));
                 }
             }
-
             br.close();
-
         } catch (IOException e) {
-            System.out.println("No se pudo cargar notas: " + e.getMessage());
+            System.out.println("Error al cargar notas: " + e.getMessage());
         }
-
         return lista;
     }
 }

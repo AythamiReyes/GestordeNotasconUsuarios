@@ -1,4 +1,4 @@
-package model;
+package NotasUsuario.model;
 
 public class Nota {
 
@@ -7,9 +7,9 @@ public class Nota {
     private String propietario;
 
     public Nota(String titulo, String contenido, String propietario){
-        this titulo = titulo;
-        this contenido = contenido;
-        this propietario = propietario;
+        this.titulo = titulo;
+        this.contenido = contenido;
+        this.propietario = propietario;
     }
 
     public String getTitulo(){
@@ -20,7 +20,7 @@ public class Nota {
         return contenido;
     }
 
-    public String propietario(){
+    public String getPropietario(){
         return propietario;
     }
 

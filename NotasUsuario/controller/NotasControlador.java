@@ -1,9 +1,9 @@
-package controller;
+package NotasUsuario.controller;
 
-import model.Nota;
-import model.NotasModelo;
-import view.LoginVista;
-import view.NotasVista;
+import NotasUsuario.model.Nota;
+import NotasUsuario.model.NotasModelo;
+import NotasUsuario.view.LoginVista;
+import NotasUsuario.view.NotasVista;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
@@ -14,83 +14,62 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
+// Conecta el Modelo con la Vista
 public class NotasControlador {
 
     private NotasModelo modelo;
     private NotasVista  vista;
-    private LoginVista  loginVista;
 
     public NotasControlador(NotasModelo modelo, NotasVista vista) {
         this.modelo = modelo;
         this.vista  = vista;
-
         conectarBotonesNotas();
-
         mostrarLogin();
     }
 
-    public void mostrarLogin() {
-        loginVista = new LoginVista(vista);
-        conectarBotonesLogin();
-        loginVista.setVisible(true);
-    }
 
-    private void conectarBotonesLogin() {
+    private void mostrarLogin() {
+        LoginVista login = new LoginVista(vista);
 
-        loginVista.getBtnLogin().addActionListener(new ActionListener() {
+        login.getBtnLogin().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                hacerLogin();
+                String nombre = login.getNombre();
+                String pass   = login.getContrasena();
+                if (nombre.isEmpty() || pass.isEmpty()) {
+                    login.mostrarError("Rellena todos los campos.");
+                    return;
+                }
+                if (modelo.login(nombre, pass)) {
+                    login.dispose();
+                    abrirVentanaPrincipal();
+                } else {
+                    login.mostrarError("Usuario o contraseña incorrectos.");
+                    vista.agregarLog("[LOGIN] Intento fallido: " + nombre);
+                }
             }
         });
 
-        loginVista.getBtnRegistrar().addActionListener(new ActionListener() {
+        login.getBtnRegistrar().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                hacerRegistro();
+                String nombre = login.getNombre();
+                String pass   = login.getContrasena();
+                if (nombre.isEmpty() || pass.isEmpty()) {
+                    login.mostrarError("Rellena todos los campos.");
+                    return;
+                }
+                try {
+                    modelo.registrar(nombre, pass);
+                    modelo.login(nombre, pass);
+                    login.dispose();
+                    abrirVentanaPrincipal();
+                    vista.agregarLog("[REGISTRO] Nuevo usuario: " + nombre);
+                } catch (IllegalArgumentException ex) {
+                    login.mostrarError(ex.getMessage());
+                }
             }
         });
-    }
 
-    private void hacerLogin() {
-        String nombre     = loginVista.getNombre();
-        String contrasena = loginVista.getContrasena();
-
-        if (nombre.isEmpty() || contrasena.isEmpty()) {
-            loginVista.mostrarError("Rellena todos los campos.");
-            return;
-        }
-
-        boolean ok = modelo.login(nombre, contrasena);
-
-        if (ok) {
-            loginVista.dispose(); // cerramos el diálogo de login
-            abrirVentanaPrincipal();
-        } else {
-            loginVista.mostrarError("Usuario o contraseña incorrectos.");
-            vista.agregarLog("[LOGIN] Intento fallido para el usuario: " + nombre);
-        }
-    }
-
-    private void hacerRegistro() {
-        String nombre     = loginVista.getNombre();
-        String contrasena = loginVista.getContrasena();
-
-        if (nombre.isEmpty() || contrasena.isEmpty()) {
-            loginVista.mostrarError("Rellena todos los campos.");
-            return;
-        }
-
-        try {
-            modelo.registrar(nombre, contrasena);
-            // Tras registrarse hacemos login automáticamente
-            modelo.login(nombre, contrasena);
-            loginVista.dispose();
-            abrirVentanaPrincipal();
-            vista.agregarLog("[REGISTRO] Nuevo usuario registrado: " + nombre);
-
-        } catch (IllegalArgumentException ex) {
-            loginVista.mostrarError(ex.getMessage());
-            vista.agregarLog("[ERROR] Registro fallido: " + ex.getMessage());
-        }
+        login.setVisible(true);
     }
 
     private void abrirVentanaPrincipal() {
@@ -98,212 +77,148 @@ public class NotasControlador {
         vista.setNombreUsuario(nombre);
         vista.vaciarFormulario();
         refrescarLista();
-        vista.mostrarMensaje("Bienvenido, " + nombre + ". Tienes "
-                + modelo.totalNotasDelUsuario() + " nota(s).", new Color(0, 100, 180));
+        vista.mostrarMensaje("Bienvenido, " + nombre + ". Tienes " + modelo.totalNotas() + " nota(s).", Color.DARK_GRAY);
         vista.agregarLog("[LOGIN] Sesión iniciada: " + nombre);
         vista.setVisible(true);
     }
 
+
     private void conectarBotonesNotas() {
 
         vista.btnCrear.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                crearNota();
-            }
+            public void actionPerformed(ActionEvent e) { crearNota(); }
         });
-
         vista.btnEditar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                editarNota();
-            }
+            public void actionPerformed(ActionEvent e) { editarNota(); }
         });
-
         vista.btnEliminar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                eliminarNota();
-            }
+            public void actionPerformed(ActionEvent e) { eliminarNota(); }
         });
-
         vista.btnLimpiar.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                limpiarCampos();
-            }
+            public void actionPerformed(ActionEvent e) { limpiarCampos(); }
         });
-
         vista.btnBorrarTodo.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                borrarTodas();
-            }
+            public void actionPerformed(ActionEvent e) { borrarTodas(); }
         });
-
         vista.btnLogout.addActionListener(new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                cerrarSesion();
-            }
+            public void actionPerformed(ActionEvent e) { cerrarSesion(); }
         });
 
-        // Seleccionar una nota de la lista
         vista.getListaNotas().addListSelectionListener(new ListSelectionListener() {
             public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                    seleccionarNota();
-                }
+                if (!e.getValueIsAdjusting()) seleccionarNota();
             }
         });
 
-        // Escribir en el campo de búsqueda
         vista.getCampoBusqueda().getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e)  { buscar(); }
-            public void removeUpdate(DocumentEvent e)  { buscar(); }
-            public void changedUpdate(DocumentEvent e) { buscar(); }
+            public void insertUpdate(DocumentEvent e)  { refrescarLista(); }
+            public void removeUpdate(DocumentEvent e)  { refrescarLista(); }
+            public void changedUpdate(DocumentEvent e) { refrescarLista(); }
         });
     }
 
+
     private void seleccionarNota() {
-        Nota nota = vista.getNotaSeleccionada();
-        if (nota != null) {
-            vista.cargarNota(nota);
-            vista.mostrarMensaje("Nota seleccionada: " + nota.getTitulo(), Color.BLUE);
-            vista.agregarLog("Nota cargada: " + nota.getTitulo());
+        Nota n = vista.getNotaSeleccionada();
+        if (n != null) {
+            vista.cargarNota(n);
+            vista.mostrarMensaje("Nota seleccionada: " + n.getTitulo(), Color.BLUE);
+            vista.agregarLog("[SELECCIONAR] " + n.getTitulo());
         }
     }
 
     private void crearNota() {
-        String titulo    = vista.getTitulo();
-        String contenido = vista.getContenido();
-
         try {
-            Nota nueva = modelo.crearNota(titulo, contenido);
+            Nota n = modelo.crearNota(vista.getTitulo(), vista.getContenido());
             refrescarLista();
             vista.vaciarFormulario();
-            vista.mostrarMensaje("Nota creada: " + nueva.getTitulo(), new Color(0, 128, 0));
-            vista.agregarLog("Nueva nota: " + nueva.getTitulo());
-
+            vista.mostrarMensaje("Nota creada: " + n.getTitulo(), new Color(0, 128, 0));
+            vista.agregarLog("[CREAR] " + n.getTitulo());
         } catch (IllegalArgumentException ex) {
             vista.mostrarError(ex.getMessage());
-            vista.agregarLog("Crear fallido: " + ex.getMessage());
+            vista.agregarLog("[ERROR] " + ex.getMessage());
         }
     }
 
     private void editarNota() {
-        Nota seleccionada = vista.getNotaSeleccionada();
-
-        // Caso atípico: editar sin seleccionar
-        if (seleccionada == null) {
-            vista.mostrarError("Selecciona una nota de la lista para editarla.");
-            vista.agregarLog("Edición sin nota seleccionada.");
+        Nota n = vista.getNotaSeleccionada();
+        if (n == null) { // sin selección
+            vista.mostrarError("Selecciona una nota para editarla.");
+            vista.agregarLog("[ERROR] Edición sin nota seleccionada.");
             return;
         }
-
-        String nuevoTitulo    = vista.getTitulo();
-        String nuevoContenido = vista.getContenido();
-
         try {
-            String anterior = seleccionada.getTitulo();
-            modelo.editarNota(seleccionada, nuevoTitulo, nuevoContenido);
+            String anterior = n.getTitulo();
+            modelo.editarNota(n, vista.getTitulo(), vista.getContenido());
             refrescarLista();
             vista.vaciarFormulario();
-            vista.mostrarMensaje("Nota editada correctamente.", new Color(0, 100, 180));
-            vista.agregarLog("[EDITAR] " + anterior + "' → '" + nuevoTitulo + "'");
-
+            vista.mostrarMensaje("Nota editada correctamente.", Color.BLUE);
+            vista.agregarLog("[EDITAR] '" + anterior + "' → '" + n.getTitulo() + "'");
         } catch (IllegalArgumentException ex) {
             vista.mostrarError(ex.getMessage());
-            vista.agregarLog("Edición fallida: " + ex.getMessage());
+            vista.agregarLog("[ERROR] " + ex.getMessage());
         }
     }
 
     private void eliminarNota() {
-        Nota seleccionada = vista.getNotaSeleccionada();
-
-        // Caso atípico: eliminar sin seleccionar
-        if (seleccionada == null) {
-            vista.mostrarError("Selecciona una nota de la lista para eliminarla.");
-            vista.agregarLog("Eliminación sin nota seleccionada.");
+        Nota n = vista.getNotaSeleccionada();
+        if (n == null) { // sin selección
+            vista.mostrarError("Selecciona una nota para eliminarla.");
+            vista.agregarLog("[ERROR] Eliminación sin nota seleccionada.");
             return;
         }
-
-        boolean confirma = vista.pedirConfirmacion(
-                "¿Seguro que quieres eliminar:\n'" + seleccionada.getTitulo() + "'?",
-                "Confirmar eliminación");
-
-        if (confirma) {
-            String titulo = seleccionada.getTitulo();
-            modelo.eliminarNota(seleccionada);
+        if (vista.pedirConfirmacion("¿Eliminar '" + n.getTitulo() + "'?", "Confirmar")) {
+            String titulo = n.getTitulo();
+            modelo.eliminarNota(n);
             refrescarLista();
             vista.vaciarFormulario();
             vista.mostrarMensaje("Nota eliminada: " + titulo, Color.RED);
-            vista.agregarLog("Nota borrada: " + titulo);
+            vista.agregarLog("[ELIMINAR] " + titulo);
         } else {
-            vista.mostrarMensaje("Eliminación cancelada.", Color.GRAY);
-            vista.agregarLog("Eliminación cancelada por el usuario.");
+            vista.agregarLog("[INFO] Eliminación cancelada.");
         }
     }
 
     private void limpiarCampos() {
         vista.vaciarFormulario();
         vista.mostrarMensaje("Campos limpiados. Las notas no han cambiado.", Color.GRAY);
-        vista.agregarLog("Campos del formulario vaciados.");
+        vista.agregarLog("[LIMPIAR] Campos vaciados.");
     }
 
     private void borrarTodas() {
-        if (modelo.totalNotasDelUsuario() == 0) {
-            vista.mostrarError("No tienes notas que borrar.");
-            vista.agregarLog("Borrar todo: lista ya vacía.");
+        if (modelo.totalNotas() == 0) {
+            vista.mostrarError("No hay notas que borrar.");
             return;
         }
-
-        boolean primera = vista.pedirConfirmacion(
-                "Vas a borrar TODAS tus notas (" + modelo.totalNotasDelUsuario() + " notas).\n"
-                + "Esta acción NO se puede deshacer.\n\n¿Continuar?",
-                "ADVERTENCIA - Borrar todas las notas");
-
-        if (!primera) {
-            vista.mostrarMensaje("Borrado cancelado.", Color.GRAY);
-            vista.agregarLog("[INFO] Borrar todo cancelado en 1ª confirmación.");
+        if (!vista.pedirConfirmacion(
+                "Vas a borrar TODAS tus notas (" + modelo.totalNotas() + ").\nEsta acción no se puede deshacer. ¿Continuar?",
+                "ADVERTENCIA")) {
+            vista.agregarLog("[INFO] Borrar todo cancelado.");
             return;
         }
-
-        // Segunda confirmación
-        boolean segunda = vista.pedirConfirmacion(
-                "¿Confirmas que quieres borrar TODAS tus notas para siempre?",
-                "Confirmación final");
-
-        if (segunda) {
-            int cantidad = modelo.totalNotasDelUsuario();
-            modelo.eliminarTodasMisNotas();
-            refrescarLista();
-            vista.vaciarFormulario();
-            vista.mostrarMensaje("Se borraron " + cantidad + " notas.", Color.RED);
-            vista.agregarLog("[BORRAR TODO] " + cantidad + " notas eliminadas.");
-        } else {
-            vista.mostrarMensaje("Borrado cancelado.", Color.GRAY);
-            vista.agregarLog("[INFO] Borrar todo cancelado en 2ª confirmación.");
+        if (!vista.pedirConfirmacion("¿Confirmas que quieres borrarlas todas?", "Confirmación final")) {
+            vista.agregarLog("[INFO] Borrar todo cancelado.");
+            return;
         }
-    }
-
-    private void buscar() {
-        String texto = vista.getBusqueda();
-        ArrayList<Nota> resultado = modelo.buscar(texto);
-        vista.mostrarNotas(resultado);
-
-        if (!texto.isEmpty()) {
-            vista.agregarLog("[BUSCAR] '" + texto + "' → " + resultado.size() + " resultado(s).");
-        }
+        int cantidad = modelo.totalNotas();
+        modelo.eliminarTodasMisNotas();
+        refrescarLista();
+        vista.vaciarFormulario();
+        vista.mostrarMensaje("Se borraron " + cantidad + " notas.", Color.RED);
+        vista.agregarLog("[BORRAR TODO] " + cantidad + " notas eliminadas.");
     }
 
     private void cerrarSesion() {
         String nombre = modelo.getUsuarioActual().getNombre();
         modelo.logout();
-        vista.setVisible(false);     // ocultamos la ventana principal
+        vista.setVisible(false);
+        vista.mostrarNotas(new ArrayList<>());
         vista.vaciarFormulario();
-        vista.mostrarNotas(new ArrayList<>()); // vaciamos la lista en pantalla
         vista.agregarLog("[LOGOUT] Sesión cerrada: " + nombre);
-        mostrarLogin();              // volvemos a mostrar el login
+        mostrarLogin();
     }
 
-    // Refresca la lista respetando el filtro activo
     private void refrescarLista() {
-        ArrayList<Nota> notas = modelo.buscar(vista.getBusqueda());
-        vista.mostrarNotas(notas);
+        vista.mostrarNotas(modelo.buscar(vista.getBusqueda()));
     }
 }
