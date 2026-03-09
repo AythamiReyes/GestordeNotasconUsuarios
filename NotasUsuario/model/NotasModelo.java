@@ -7,21 +7,21 @@ import java.util.ArrayList;
 public class NotasModelo {
 
     private ArrayList<Usuario> usuarios;
-    private ArrayList<Nota>    notas;
-    private Usuario            usuarioActual;
+    private ArrayList<Nota> notas;
+    private Usuario usuarioActual;
 
     public NotasModelo() {
-        usuarios      = GestorFicheros.cargarUsuarios();
-        notas         = GestorFicheros.cargarNotas();
+        usuarios = GestorFicheros.cargarUsuarios();
+        notas = GestorFicheros.cargarNotas();
         usuarioActual = null;
     }
 
     // SHA-256: guarda la huella de la contraseña, no el texto real
     public String hashear(String contrasena) {
         try {
-            MessageDigest md    = MessageDigest.getInstance("SHA-256");
-            byte[]        bytes = md.digest(contrasena.getBytes("UTF-8"));
-            StringBuilder sb    = new StringBuilder();
+            MessageDigest md = MessageDigest.getInstance("SHA-256");
+            byte[] bytes = md.digest(contrasena.getBytes("UTF-8"));
+            StringBuilder sb = new StringBuilder();
             for (int i = 0; i < bytes.length; i++) {
                 sb.append(String.format("%02x", bytes[i]));
             }
@@ -74,8 +74,8 @@ public class NotasModelo {
         if (usuarioActual == null) return resultado;
 
         for (int i = 0; i < notas.size(); i++) {
-            Nota n        = notas.get(i);
-            boolean esMia    = n.getPropietario().equals(usuarioActual.getNombre());
+            Nota n = notas.get(i);
+            boolean esMia = n.getPropietario().equals(usuarioActual.getNombre());
             boolean coincide = filtro.isEmpty() || n.getTitulo().toLowerCase().contains(filtro.toLowerCase());
             if (esMia && coincide) resultado.add(n);
         }

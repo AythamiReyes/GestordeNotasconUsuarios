@@ -7,8 +7,8 @@ import java.util.ArrayList;
 public class GestorFicheros {
 
     private static final String FICHERO_USUARIOS = "usuarios.txt";
-    private static final String FICHERO_NOTAS    = "notas.txt";
-    private static final String SEP              = "||";
+    private static final String FICHERO_NOTAS = "notas.txt";
+    private static final String SEP = "||";
 
 
     public static void guardarUsuarios(ArrayList<Usuario> lista) {

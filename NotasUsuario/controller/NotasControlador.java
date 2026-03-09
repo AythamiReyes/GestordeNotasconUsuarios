@@ -22,7 +22,7 @@ public class NotasControlador {
 
     public NotasControlador(NotasModelo modelo, NotasVista vista) {
         this.modelo = modelo;
-        this.vista  = vista;
+        this.vista = vista;
         conectarBotonesNotas();
         mostrarLogin();
     }
@@ -34,7 +34,7 @@ public class NotasControlador {
         login.getBtnLogin().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String nombre = login.getNombre();
-                String pass   = login.getContrasena();
+                String pass = login.getContrasena();
                 if (nombre.isEmpty() || pass.isEmpty()) {
                     login.mostrarError("Rellena todos los campos.");
                     return;
@@ -52,7 +52,7 @@ public class NotasControlador {
         login.getBtnRegistrar().addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 String nombre = login.getNombre();
-                String pass   = login.getContrasena();
+                String pass = login.getContrasena();
                 if (nombre.isEmpty() || pass.isEmpty()) {
                     login.mostrarError("Rellena todos los campos.");
                     return;

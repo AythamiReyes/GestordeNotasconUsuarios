@@ -8,24 +8,24 @@ import javax.swing.*;
 // Ventana principal
 public class NotasVista extends JFrame {
 
-    JLabel     etiquetaUsuario = new JLabel("Usuario: -");
-    JTextField campoBusqueda   = new JTextField(15);
-    public JButton    btnLogout       = new JButton("Cerrar sesión");
+    JLabel etiquetaUsuario = new JLabel("Usuario: -");
+    JTextField campoBusqueda = new JTextField(15);
+    public JButton btnLogout = new JButton("Cerrar sesión");
 
     DefaultListModel<Nota> modeloLista = new DefaultListModel<>();
-    JList<Nota>            listaNotas  = new JList<>(modeloLista);
+    JList<Nota> listaNotas = new JList<>(modeloLista);
 
-    JTextField campoTitulo    = new JTextField();
-    JTextArea  campoContenido = new JTextArea(8, 25);
+    JTextField campoTitulo = new JTextField();
+    JTextArea campoContenido = new JTextArea(8, 25);
 
-    public JButton btnCrear      = new JButton("Crear nota");
-    public JButton btnEditar     = new JButton("Guardar cambios");
-    public JButton btnEliminar   = new JButton("Eliminar nota");
-    public JButton btnLimpiar    = new JButton("Limpiar campos");
+    public JButton btnCrear = new JButton("Crear nota");
+    public JButton btnEditar = new JButton("Guardar cambios");
+    public JButton btnEliminar = new JButton("Eliminar nota");
+    public JButton btnLimpiar = new JButton("Limpiar campos");
     public JButton btnBorrarTodo = new JButton("Borrar TODAS");
 
-    JLabel    etiquetaMensaje = new JLabel("Bienvenido");
-    JTextArea areaLog         = new JTextArea(3, 0);
+    JLabel etiquetaMensaje = new JLabel("Bienvenido");
+    JTextArea areaLog = new JTextArea(3, 0);
 
     public NotasVista() {
         setTitle("Gestor de Notas MVC");
@@ -33,21 +33,21 @@ public class NotasVista extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(5, 5));
-        add(zonaNorte(),  BorderLayout.NORTH);
+        add(zonaNorte(), BorderLayout.NORTH);
         add(zonaCentro(), BorderLayout.CENTER);
-        add(zonaEste(),   BorderLayout.EAST);
-        add(zonaSur(),    BorderLayout.SOUTH);
+        add(zonaEste(), BorderLayout.EAST);
+        add(zonaSur(), BorderLayout.SOUTH);
     }
 
     private JPanel zonaNorte() {
-        JPanel panel    = new JPanel(new BorderLayout(10, 0));
+        JPanel panel = new JPanel(new BorderLayout(10, 0));
         JPanel busqueda = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         panel.setBorder(BorderFactory.createEmptyBorder(6, 10, 6, 10));
         busqueda.add(new JLabel("Buscar:"));
         busqueda.add(campoBusqueda);
         panel.add(etiquetaUsuario, BorderLayout.WEST);
-        panel.add(busqueda,        BorderLayout.CENTER);
-        panel.add(btnLogout,       BorderLayout.EAST);
+        panel.add(busqueda, BorderLayout.CENTER);
+        panel.add(btnLogout, BorderLayout.EAST);
         return panel;
     }
 
@@ -61,10 +61,10 @@ public class NotasVista extends JFrame {
         campoContenido.setWrapStyleWord(true);
         JPanel filaTitulo = new JPanel(new BorderLayout(5, 0));
         filaTitulo.add(new JLabel("Título:  "), BorderLayout.WEST);
-        filaTitulo.add(campoTitulo,              BorderLayout.CENTER);
+        filaTitulo.add(campoTitulo, BorderLayout.CENTER);
         JPanel derecha = new JPanel(new BorderLayout(5, 5));
         derecha.setBorder(BorderFactory.createTitledBorder("Contenido de la nota"));
-        derecha.add(filaTitulo,                      BorderLayout.NORTH);
+        derecha.add(filaTitulo, BorderLayout.NORTH);
         derecha.add(new JScrollPane(campoContenido), BorderLayout.CENTER);
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, izquierda, derecha);
@@ -99,7 +99,7 @@ public class NotasVista extends JFrame {
         JScrollPane scrollLog = new JScrollPane(areaLog);
         scrollLog.setBorder(BorderFactory.createTitledBorder("Registro de acciones (log)"));
         panel.add(etiquetaMensaje, BorderLayout.NORTH);
-        panel.add(scrollLog,       BorderLayout.CENTER);
+        panel.add(scrollLog, BorderLayout.CENTER);
         return panel;
     }
 
@@ -146,10 +146,10 @@ public class NotasVista extends JFrame {
         setTitle("Gestor de Notas — " + nombre);
     }
 
-    public String getTitulo()           { return campoTitulo.getText().trim(); }
-    public String getContenido()        { return campoContenido.getText().trim(); }
-    public String getBusqueda()         { return campoBusqueda.getText().trim(); }
-    public Nota   getNotaSeleccionada() { return listaNotas.getSelectedValue(); }
-    public JList<Nota> getListaNotas()     { return listaNotas; }
-    public JTextField  getCampoBusqueda()  { return campoBusqueda; }
+    public String getTitulo(){ return campoTitulo.getText().trim(); }
+    public String getContenido(){ return campoContenido.getText().trim(); }
+    public String getBusqueda(){ return campoBusqueda.getText().trim(); }
+    public Nota getNotaSeleccionada(){ return listaNotas.getSelectedValue(); }
+    public JList<Nota> getListaNotas(){ return listaNotas; }
+    public JTextField  getCampoBusqueda(){ return campoBusqueda; }
 }

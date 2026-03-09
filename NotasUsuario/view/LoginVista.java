@@ -8,12 +8,12 @@ import javax.swing.*;
 public class LoginVista extends JDialog {
 
     // Campos de texto
-    JTextField     campoNombre     = new JTextField(18);
+    JTextField campoNombre = new JTextField(18);
     JPasswordField campoContrasena = new JPasswordField(18);
     // JPasswordField es igual que JTextField pero oculta lo que escribes con *
 
     // Botones
-    JButton btnLogin     = new JButton("Iniciar sesión");
+    JButton btnLogin = new JButton("Iniciar sesión");
     JButton btnRegistrar = new JButton("Registrarse");
 
     // Etiqueta para mostrar errores dentro del diálogo
@@ -63,8 +63,8 @@ public class LoginVista extends JDialog {
         etiquetaError.setHorizontalAlignment(SwingConstants.CENTER);
         etiquetaError.setFont(new Font("SansSerif", Font.PLAIN, 11));
 
-        sur.add(botones,        BorderLayout.CENTER);
-        sur.add(etiquetaError,  BorderLayout.SOUTH);
+        sur.add(botones, BorderLayout.CENTER);
+        sur.add(etiquetaError, BorderLayout.SOUTH);
 
         panel.add(sur, BorderLayout.SOUTH);
 
@@ -98,6 +98,6 @@ public class LoginVista extends JDialog {
     }
 
     // Expone los botones para que el Controlador les ponga los ActionListener
-    public JButton getBtnLogin()     { return btnLogin;     }
-    public JButton getBtnRegistrar() { return btnRegistrar; }
+    public JButton getBtnLogin(){ return btnLogin;}
+    public JButton getBtnRegistrar() { return btnRegistrar;}
 }
